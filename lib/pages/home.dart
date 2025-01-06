@@ -28,6 +28,8 @@ class _HomePageState extends State<HomePage> {
                 const SizedBox(height: 20),
                 Text('NFC Data: ${nfcController.data.value}'),
                 const SizedBox(height: 20),
+                Text('RAW Data: ${nfcController.raw.value}'),
+                const SizedBox(height: 20),
                 ElevatedButton(
                   onPressed: () async {
                     Clipboard.setData(ClipboardData(text: nfcController.data.value));

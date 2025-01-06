@@ -1,10 +1,13 @@
+import 'dart:convert';
+
+import 'package:flutter_nfc_kit/flutter_nfc_kit.dart';
 import 'package:get/get.dart';
-import 'package:nfc_manager/nfc_manager.dart';
 
 class NfcController extends GetxController {
 
   var data = ''.obs;
   var handle = ''.obs;
+  var raw = ''.obs;
 
   @override
   onInit() {
@@ -12,29 +15,23 @@ class NfcController extends GetxController {
     getNfcData();
   }
 
-  getNfcData() {
+  getNfcData() async{
+    var tag = await FlutterNfcKit.poll();
+     handle.value = '${tag.ndefType} // ${tag.protocolInfo}';
 
-    NfcManager.instance.startSession(
-      onDiscovered: (NfcTag tag) async {
-        data.value = tag.data.toString();
-        handle.value = tag.handle.toString();
+    if (tag.ndefAvailable!) {
+      /// decoded NDEF records (see [ndef.NDEFRecord] for details)
+      /// `UriRecord: id=(empty) typeNameFormat=TypeNameFormat.nfcWellKnown type=U uri=https://github.com/nfcim/ndef`
+      for (var record in await FlutterNfcKit.readNDEFRecords(cached: false)) {
+        data.value = record.toString();
+      }
+      /// raw NDEF records (data in hex string)
+      /// `{identifier: "", payload: "00010203", type: "0001", typeNameFormat: "nfcWellKnown"}`
+      for (var record in await FlutterNfcKit.readNDEFRawRecords(cached: false)) {
+        raw.value = jsonEncode(record).toString();
+      }
+    }
 
-        Get.snackbar(
-          'NFC Data',
-          tag.data.toString(),
-          snackPosition: SnackPosition.BOTTOM,
-        );
-        return Future.value(true);
-      },
-      onError: (Object error) {
-        Get.snackbar(
-          'Error',
-          error.toString(),
-          snackPosition: SnackPosition.BOTTOM,
-        );
-        return Future.value(false);
-      },
-    );
   }
 
 }

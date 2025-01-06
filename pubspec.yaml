@@ -38,6 +38,10 @@ dependencies:
   flutter_nfc_kit: ^3.5.2
   get: ^4.6.6
 
+
+dependency_overrides:
+  js: ^0.6.4
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
